@@ -4,6 +4,7 @@ import {
     SET_POSTS_TO_DISPLAY,
     SET_TOTAL_PAGES,
     SET_LANGUAGE,
+    SET_RANGE,
     SET_CURRENT_PAGE
 } from '../types';
 import { IInitialState, IPost, languages } from './postProvider'
@@ -15,6 +16,7 @@ type Action =
     | { type: 'SET_POSTS_TO_DISPLAY', payload: IPost[] }
     | { type: 'SET_LANGUAGE', payload: languages }
     | { type: 'SET_CURRENT_PAGE', payload: number }
+    | { type: 'SET_RANGE', payload: number[] }
 
 export const postReducer = (state: IInitialState, action: Action) => {
 
@@ -35,9 +37,12 @@ export const postReducer = (state: IInitialState, action: Action) => {
                 totalPages: action.payload
             }
         case SET_POSTS_TO_DISPLAY:
-            return {
-                ...state,
-                postsDisplay: [...action.payload]
+            {
+
+                return {
+                    ...state,
+                    postsDisplay: [...action.payload]
+                }
             }
         case SET_LANGUAGE:
             return {
@@ -48,6 +53,11 @@ export const postReducer = (state: IInitialState, action: Action) => {
             return {
                 ...state,
                 currentPage: action.payload
+            }
+        case SET_RANGE:
+            return {
+                ...state,
+                range: [...action.payload]
             }
         default:
             return state;

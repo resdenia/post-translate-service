@@ -14,10 +14,6 @@ const Pagination = memo((props: PaginationProps) => {
     const { currentPage, totalPages, onPaginationHandler } =
         useContext(PostContext);
 
-    const onPaginationClick = useCallback(
-        (pageNumber: number) => {},
-        [],
-    );
     return (
         <div className={cls.Pagination}>
             <div className={cls.firstPage}>
@@ -25,7 +21,7 @@ const Pagination = memo((props: PaginationProps) => {
                 <Button
                     disabled={currentPage === 1}
                     onClick={() => {
-                        onPaginationHandler(0);
+                        onPaginationHandler(0, 'first');
                     }}
                 >
                     1
@@ -37,6 +33,7 @@ const Pagination = memo((props: PaginationProps) => {
                     onClick={() => {
                         onPaginationHandler(
                             currentPage - 1,
+                            'prev',
                         );
                     }}
                 >
@@ -53,6 +50,7 @@ const Pagination = memo((props: PaginationProps) => {
                     onClick={() => {
                         onPaginationHandler(
                             currentPage + 1,
+                            'next',
                         );
                     }}
                 >
@@ -64,7 +62,10 @@ const Pagination = memo((props: PaginationProps) => {
                 <Button
                     disabled={currentPage === totalPages}
                     onClick={() => {
-                        onPaginationClick(totalPages);
+                        onPaginationHandler(
+                            totalPages,
+                            'last',
+                        );
                     }}
                 >
                     {totalPages}

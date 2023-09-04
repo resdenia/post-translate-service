@@ -2,12 +2,17 @@
     display: flex;
 }
 .firstPage {
+    margin: 0 10px;
 }
 .prevPage {
+    margin: 0 10px;
 }
 .currentPage {
+    margin: 0px 10px;
 }
 .nextPage {
+    margin: 0 10px;
 }
 .lastPage {
+    margin: 0 10px;
 }

@@ -1,6 +1,6 @@
 
 const BASE_URL =
-    'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=es,fr';
+    'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=es,fr&from=en';
 
 const API_KEY = '083f98b1ea1e49bcbadc13de4616d9a8'
 const LOCATION = 'centralus'
@@ -9,7 +9,9 @@ const LOCATION = 'centralus'
 interface IBody {
     text: string;
 }
-
+interface ITranslation {
+    text: string;
+}
 class Translation {
     baseUrl: string;
 
@@ -24,9 +26,8 @@ class Translation {
         // throw new Error('Something went wrong');
     };
 
-    customFetch = async (slug: string, body: IBody, method: string, headers: HeadersInit) => {
+    customFetch = async (body: IBody[], method: string, headers: HeadersInit) => {
         const bodyDisplay: BodyInit = JSON.stringify(body);
-
         const headerToSend: HeadersInit = headers || {};
 
         const fetchObject: RequestInit = {
@@ -38,13 +39,11 @@ class Translation {
             ...(method !== 'GET' ? { body: bodyDisplay } : {}),
         };
 
-        const res = await fetch(`${this.baseUrl}/${slug}`, fetchObject);
+        const res = await fetch(`${this.baseUrl}`, fetchObject);
         return this.checkResponse(res);
     };
 
-    translatePost = async (text: string) => this.customFetch('', {
-        text: text
-    }, 'POST', {
+    translatePostAPI = async (data: ITranslation[]) => this.customFetch(data, 'POST', {
         'Ocp-Apim-Subscription-Key': API_KEY,
         'Ocp-Apim-Subscription-Region': LOCATION
     });

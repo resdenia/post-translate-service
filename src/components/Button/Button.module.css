@@ -4,3 +4,6 @@
     color: var(--primary-color);
     border-radius: 4px;
 }
+.Button:disabled {
+    opacity: 0.3;
+}

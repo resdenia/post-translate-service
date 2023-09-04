@@ -6,3 +6,4 @@ export const SET_NEXT_PAGE = 'SET_NEXT_PAGE';
 export const SET_POSTS_TO_DISPLAY = 'SET_POSTS_TO_DISPLAY';
 export const SET_RANGE = 'SET_RANGE';
 export const SET_LANGUAGE = 'SET_LANGUAGE';
+export const POST_TOGGLE_LIKE = 'POST_TOGGLE_LIKE';

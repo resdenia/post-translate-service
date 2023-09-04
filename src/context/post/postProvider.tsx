@@ -1,6 +1,5 @@
 import React, {
     useReducer,
-    useCallback,
     FunctionComponent,
     useMemo,
 } from 'react';
@@ -27,21 +26,30 @@ interface IProps {
 export interface IPost {
     title: string;
     body: string;
-    date: string;
-    id: number;
-    username: string;
+    date?: string;
+    id?: number;
+    username?: string;
     titleES?: string;
     titleFR?: string;
     bodyES?: string;
     bodyFR?: string;
 }
-
-export enum languages {
-    en,
-    es,
-    fr,
+interface ITranslation {
+    text: string;
+}
+interface ITranslationResponseItem {
+    text: string;
+    to: string;
 }
 
+interface ITranslationResponse {
+    translations: ITranslationResponseItem[];
+}
+export enum languages {
+    en = 'En',
+    es = 'Es',
+    fr = 'Fr',
+}
 export interface IInitialState {
     language: languages;
     posts: Map<number, IPost> | IPost[];
@@ -50,6 +58,7 @@ export interface IInitialState {
     totalPages: number;
     range: number[];
     postsDisplay: IPost[];
+    defaultLanguage: languages;
 }
 
 export const PostProvider: FunctionComponent<IProps> = ({
@@ -60,15 +69,90 @@ export const PostProvider: FunctionComponent<IProps> = ({
         currentPage: 1,
         nextPage: 2,
         totalPages: 0,
-        range: [0, 9],
+        range: [1, 10],
         postsDisplay: [],
         language: languages.en,
+        defaultLanguage: languages.en,
     };
 
     const [state, dispatch] = useReducer(
         postReducer,
         initialState,
     );
+
+    const postsToDisplay = async (
+        posts: Map<number, IPost>,
+    ) => {
+        const result: IPost[] = [];
+        const postTranslate: ITranslation[] = [];
+        for (
+            let i = state.range[0];
+            i <= state.range[1];
+            i++
+        ) {
+            const post = (posts as Map<number, IPost>).get(
+                i,
+            );
+            if (post != undefined) {
+                postTranslate.push({
+                    text: `__${post.id}__ ${
+                        post.body
+                    }PostDataSplitter${`${post.title}`}`,
+                });
+            }
+        }
+
+        const translatedData =
+            await translationApi.translatePostAPI(
+                postTranslate,
+            );
+
+        translatedData.forEach(
+            (transaltedItem: ITranslationResponse) => {
+                const postId =
+                    transaltedItem.translations[0].text
+                        .split(' ')[0]
+                        .replace(/_/g, '');
+
+                const dataFR =
+                    transaltedItem.translations[0].text.split(
+                        ' ',
+                    );
+                const dataES =
+                    transaltedItem.translations[1].text.split(
+                        ' ',
+                    );
+                dataFR.splice(0, 1);
+                dataES.splice(0, 1);
+
+                const [bodyFR, titleFR] = dataFR
+                    .join(' ')
+                    .split('PostDataSplitter');
+                const [bodyES, titleES] = dataES
+                    .join(' ')
+                    .split('PostDataSplitter');
+                console.log(`${bodyES}: `, titleES);
+                const post = (
+                    posts as Map<number, IPost>
+                ).get(+postId);
+                console.log(post);
+                if (post != undefined) {
+                    result.push({
+                        ...post,
+                        bodyFR,
+                        titleFR,
+                        bodyES,
+                        titleES,
+                    });
+                }
+            },
+        );
+        console.log(result);
+        dispatch({
+            type: SET_POSTS_TO_DISPLAY,
+            payload: [...result],
+        });
+    };
 
     const getPosts = async () => {
         try {
@@ -77,11 +161,13 @@ export const PostProvider: FunctionComponent<IProps> = ({
             if (!posts) {
                 posts = postsDump;
             }
-            const postsDisplay = postsToDisplay(posts);
 
             const mappedPosts = new Map();
-            posts.forEach((post: IPost) => {
-                mappedPosts.set(post.id, post);
+
+            posts.forEach((post: IPost, idx: number) => {
+                mappedPosts.set(post.id, {
+                    ...post,
+                });
             });
 
             dispatch({
@@ -93,73 +179,61 @@ export const PostProvider: FunctionComponent<IProps> = ({
                 type: GET_POSTS,
                 payload: mappedPosts,
             });
-            dispatch({
-                type: SET_POSTS_TO_DISPLAY,
-                payload: postsDisplay,
-            });
+            postsToDisplay(mappedPosts);
         } catch (e) {
             console.log(e);
         }
     };
-    const postsToDisplay = (posts: IPost[]) => {
-        return posts.splice(state.range[0], state.range[1]);
-    };
 
-    const onPaginationHandler = (pageId: number) => {
+    const onPaginationHandler = async (
+        pageId: number,
+        direction?: string,
+    ) => {
         dispatch({
             type: SET_CURRENT_PAGE,
             payload: pageId,
         });
-    };
-
-    const translatePost = async (postId: number) => {
-        const post = (
-            state.posts as Map<number, IPost>
-        ).get(postId);
-        let updatedPost = { ...post };
-        if (updatedPost != undefined) {
-            // TODO: Refactor
-            if (!updatedPost?.bodyES) {
-                //translate
-                const bodyTranslated =
-                    await translationApi.translatePost(
-                        post!.body,
-                    );
-                updatedPost = {
-                    ...post,
-                    bodyES: bodyTranslated.translations[0]
-                        .text,
-                    bodyFR: bodyTranslated.translations[1]
-                        .text,
-                };
-            }
-            if (!updatedPost?.titleES) {
-                //translate
-                const titleTranslated =
-                    await translationApi.translatePost(
-                        post!.title,
-                    );
-                updatedPost = {
-                    ...post,
-                    titleES:
-                        titleTranslated.translations[0]
-                            .text,
-                    titleFR:
-                        titleTranslated.translations[1]
-                            .text,
-                };
-            }
+        if (direction === 'prev') {
+            dispatch({
+                type: SET_RANGE,
+                payload: [
+                    state.range[0] - 10,
+                    state.range[1] - 10,
+                ],
+            });
+        } else if (direction === 'next') {
+            dispatch({
+                type: SET_RANGE,
+                payload: [
+                    state.range[0] + 10,
+                    state.range[1] + 10,
+                ],
+            });
+        } else if (direction === 'first') {
+            dispatch({
+                type: SET_RANGE,
+                payload: [1, 10],
+            });
+        } else if (direction === 'last') {
+            dispatch({
+                type: SET_RANGE,
+                payload: [
+                    state.totalPages * 10 - 10,
+                    state.totalPages * 10,
+                ],
+            });
         }
+        console.log(state.postsDisplay);
+        postsToDisplay(state.posts as Map<number, IPost>);
     };
 
-    const toggleLanguage = (lang: languages) => {
+    const toggleLanguage = async (lang: languages) => {
         dispatch({ type: SET_LANGUAGE, payload: lang });
     };
 
-    const filterPost = () => {};
-
     const value = useMemo(
         () => ({
+            language: state.language,
             posts: state.posts,
             currentPage: state.currentPage,
             nextPage: state.nextPage,
@@ -167,6 +241,8 @@ export const PostProvider: FunctionComponent<IProps> = ({
             postsDisplay: state.postsDisplay,
             getPosts,
             onPaginationHandler,
+            toggleLanguage,
+            postsToDisplay,
         }),
         [state],
     );
