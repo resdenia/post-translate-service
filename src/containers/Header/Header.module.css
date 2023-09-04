@@ -1,0 +1,19 @@
+.Header {
+    background-color: var(--secondary-bg-color);
+    padding: 4px 14px;
+    border-radius: 5px;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.title {
+    margin: 0;
+}
+.logo {
+    display: flex;
+}
+.languageController {
+    display: flex;
+}

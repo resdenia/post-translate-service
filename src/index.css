@@ -1,0 +1,41 @@
+:root {
+    --font-family-main: 'Roboto', sans-serif;
+    --font-size-m: 16px;
+    --font-line-m: 24px;
+    --font-m: var(--font-size-m) / var(--font-line-m)
+        var(--font-family-main);
+    --font-size-l: 24px;
+    --font-line-l: 32px;
+    --font-l: var(--font-size-l) / var(--font-line-l)
+        var(--font-family-main);
+    --font-size-xl: 32px;
+    --font-line-xl: 40px;
+    --font-xl: var(--font-size-xl) / var(--font-line-xl)
+        var(--font-family-main);
+
+    --navbar-height: 50px;
+    --sidebar-width: 300px;
+    --sidebar-width-collapsed: 80px;
+
+    --overlay-color: rgba(0 0 0/60%);
+    --white-color: #fff;
+    --text-color: #7e7e8f;
+    --red-light: #f00;
+    --red-dark: #ce0505;
+    --state-focus: #b2a7ff;
+    --border-bold-color: #c6cbd9;
+    --bg-color: #0f0f12;
+    --secondary-bg-color: #1f2128;
+    --inverted-bg-color: #f5f5fa;
+    --primary-color: #5eea8d;
+    --secondary-color: #7364db;
+    --border-color: #313442;
+}
+
+body {
+    box-sizing: border-box;
+    margin: 0;
+    font-family: var(--font-family-main);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}

@@ -1,0 +1,7 @@
+.Card {
+    display: flex;
+    flex-direction: column;
+}
+.title {
+    margin: 0px;
+}

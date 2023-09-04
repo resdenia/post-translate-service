@@ -1,0 +1,7 @@
+.PostItem {
+    display: flex;
+    border: 1px solid var(--border-bold-color);
+    margin-bottom: 30px;
+    padding: 15px;
+    align-items: center;
+}
